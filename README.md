@@ -70,8 +70,8 @@ Additional PATH の既定値には、mise の shims と Homebrew の標準のイ
 
 1. Raycast で「Ask Local Agent」を開きます。
 2. プロジェクトを選びます。
-3. セッションを選びます。既定では、そのプロジェクトで最後に使ったセッションを続けます。新しく始めるときは「New session」を選ぶか、`⌘ N` を押します。
-4. 必要ならモデルと thinking のレベルを選びます。モデルの一覧には、Pi の `settings.json` の `enabledModels` に書かれたモデルが出ます。「Pi default」を選ぶと、Pi の既定のモデルとレベルで動きます。
+3. 必要ならモデルと thinking のレベルを選びます。モデルの一覧には、Pi の `settings.json` の `enabledModels` に書かれたモデルが出ます。「Pi default」を選ぶと、Pi の既定のモデルとレベルで動きます。
+4. セッションを選びます。既定では、そのプロジェクトで最後に使ったセッションを続けます。新しく始めるときは「New session」を選ぶか、`⌘ N` を押します。
 5. プロンプトを入力して `⌘ Enter` で実行します。
 6. 会話の画面に移ります。左に自分のプロンプトの一覧（新しいものが上）、右にエージェントの回答が Markdown で表示されます。回答は届いた順に伸び、実行中は回答の下に進捗（実行中のツールなど）が出ます。
 7. 追加で質問するときは、画面上部の検索バーにプロンプトを入力して Enter で送ります。検索バーは1行のみです。
@@ -127,7 +127,7 @@ src/
   ask-agent.tsx            コマンド「Ask Local Agent」
   manage-projects.tsx      コマンド「Manage Agent Projects」
   components/
-    PromptForm.tsx         プロジェクト、セッション、モデル、thinking、プロンプトの入力
+    PromptForm.tsx         プロジェクト、モデル、thinking、セッション、プロンプトの入力
     ProjectSelector.tsx    プロジェクトのドロップダウン
     ProjectForm.tsx        プロジェクトの追加
     ConversationView.tsx   会話の一覧、回答の表示、追加の質問

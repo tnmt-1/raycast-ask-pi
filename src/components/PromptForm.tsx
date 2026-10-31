@@ -195,20 +195,6 @@ export function PromptForm() {
       {projects.length > 0 ? (
         <ProjectSelector projects={projects} value={projectPath} onChange={setProjectPath} />
       ) : null}
-      {project ? (
-        <Form.Dropdown
-          id="session"
-          title="Session"
-          value={sessionChoice}
-          onChange={setSessionChoice}
-          storeValue={false}
-        >
-          <Form.Dropdown.Item value={NEW_SESSION} title="New session" icon={Icon.PlusCircle} />
-          {projectSessions.map((s) => (
-            <Form.Dropdown.Item key={s.id} value={s.id} title={s.title} keywords={[s.id]} icon={Icon.Bubble} />
-          ))}
-        </Form.Dropdown>
-      ) : null}
       <Form.Dropdown
         id="model"
         title="Model"
@@ -228,6 +214,20 @@ export function PromptForm() {
           <Form.Dropdown.Item key={t} value={t} title={t} />
         ))}
       </Form.Dropdown>
+      {project ? (
+        <Form.Dropdown
+          id="session"
+          title="Session"
+          value={sessionChoice}
+          onChange={setSessionChoice}
+          storeValue={false}
+        >
+          <Form.Dropdown.Item value={NEW_SESSION} title="New session" icon={Icon.PlusCircle} />
+          {projectSessions.map((s) => (
+            <Form.Dropdown.Item key={s.id} value={s.id} title={s.title} keywords={[s.id]} icon={Icon.Bubble} />
+          ))}
+        </Form.Dropdown>
+      ) : null}
       <Form.TextArea
         id="prompt"
         ref={promptRef}
