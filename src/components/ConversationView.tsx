@@ -126,10 +126,8 @@ export function ConversationView({ agentId, project, prompt, session }: Props) {
     });
     return () => {
       clearTimeout(start);
-      // Closing Raycast or navigating back stops the agent instead of leaving it running unseen.
+      // Navigating back leaves the agent running; it saves the session when it finishes.
       mounted.current = false;
-      controller.current?.abort();
-      controller.current = null;
     };
   }, []);
 
