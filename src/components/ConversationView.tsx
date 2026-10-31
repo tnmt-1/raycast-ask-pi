@@ -63,6 +63,17 @@ export function ConversationView({ agentId, project, prompt, session }: Props) {
       setTurns((prev) => prev.map((t, i) => (i === prev.length - 1 ? { ...t, ...patch } : t)));
     setPinnedId(undefined);
     setTurns((prev) => [...prev, { prompt: text, text: "", phase: "starting", status: "Starting…" }]);
+    const title = continued?.title ?? sessionTitle(turns[0]?.prompt ?? text);
+    // Saved before running too, so the session is listed as soon as the user navigates back.
+    const startedAt = Date.now();
+    await saveSession({
+      id: targetSession,
+      agentId,
+      projectPath: project.path,
+      title,
+      createdAt: startedAt,
+      updatedAt: startedAt,
+    });
 
     const toast = await showToast({ style: Toast.Style.Animated, title: "Agent running", message: project.name });
     // Streaming emits an update per token; re-render at most every UPDATE_INTERVAL_MS.
@@ -91,7 +102,7 @@ export function ConversationView({ agentId, project, prompt, session }: Props) {
       id: result.sessionId,
       agentId,
       projectPath: project.path,
-      title: continued?.title ?? sessionTitle(turns[0]?.prompt ?? text),
+      title,
       createdAt: now,
       updatedAt: now,
     });
