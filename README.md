@@ -1,4 +1,4 @@
-# Local Coding Agent（Raycast Extension）
+# Ask Pi（Raycast Extension）
 
 Raycast から、ローカルで動くコーディングエージェントにプロンプトを送り、回答を Raycast の中で読むための Extension です。ターミナルを開かずに、質問から回答の確認、追加の質問まで済ませられます。
 
@@ -16,7 +16,7 @@ Extension は Pi の既存の設定と認証をそのまま使います。API �
 ## セットアップ
 
 ```sh
-cd raycast-local-agent
+cd raycast-ask-pi
 npm install
 npm run dev
 ```
@@ -28,7 +28,7 @@ npm run dev
 Raycast から起動したプロセスには、シェルの `PATH` が引き継がれません。Pi の起動スクリプトは内部で `node` を呼ぶため、`pi` と `node` の両方が見つかるように設定します。
 
 1. ターミナルで `which pi` と `which node` を実行し、場所を確かめます。
-2. Raycast で「Ask Local Agent」を選び、`⌘ ,` で Extension の設定を開きます。
+2. Raycast で「Ask Pi」を選び、`⌘ ,` で Extension の設定を開きます。
 3. 次の2つを設定します。
 
 | 設定            | 内容                                                       | 既定値                                                       |
@@ -42,8 +42,8 @@ Additional PATH の既定値には、mise の shims と Homebrew の標準のイ
 
 作業ディレクトリは登録したプロジェクトから選びます。登録の方法は2つあり、両方を併用できます。
 
-- Raycast で登録する：「Manage Agent Projects」で `⌘ N` を押してディレクトリを選びます。「Ask Local Agent」のフォームで `⌘ ⇧ N` を押しても登録できます。登録内容は Raycast の LocalStorage に保存されます。
-- JSON ファイルに書く：設定の Projects File に指定したファイル（既定は `~/.config/raycast-local-agent/projects.json`）にプロジェクトを列挙します。
+- Raycast で登録する：「Manage Agent Projects」で `⌘ N` を押してディレクトリを選びます。「Ask Pi」のフォームで `⌘ ⇧ N` を押しても登録できます。登録内容は Raycast の LocalStorage に保存されます。
+- JSON ファイルに書く：設定の Projects File に指定したファイル（既定は `~/.config/raycast-ask-pi/projects.json`）にプロジェクトを列挙します。
 
 ```json
 {
@@ -68,7 +68,7 @@ Additional PATH の既定値には、mise の shims と Homebrew の標準のイ
 
 ## 使い方
 
-1. Raycast で「Ask Local Agent」を開きます。
+1. Raycast で「Ask Pi」を開きます。
 2. プロジェクトを選びます。
 3. 必要ならモデルと thinking のレベルを選びます。モデルの一覧には、Pi の `settings.json` の `enabledModels` に書かれたモデルが出ます。「Pi default」を選ぶと、Pi の既定のモデルとレベルで動きます。
 4. セッションを選びます。既定では、そのプロジェクトで最後に使ったセッションを続けます。新しく始めるときは「New session」を選ぶか、`⌘ N` を押します。
@@ -124,7 +124,7 @@ pi --mode json --session-id <UUID> [--model <モデル>] [--thinking <レベル>
 
 ```
 src/
-  ask-agent.tsx            コマンド「Ask Local Agent」
+  ask-agent.tsx            コマンド「Ask Pi」
   manage-projects.tsx      コマンド「Manage Agent Projects」
   components/
     PromptForm.tsx         プロジェクト、モデル、thinking、セッション、プロンプトの入力

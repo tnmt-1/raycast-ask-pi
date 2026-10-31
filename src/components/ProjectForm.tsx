@@ -20,7 +20,7 @@ export function ProjectForm({ onSave, onboarding = false, notice }: Props) {
 
   return (
     <Form
-      navigationTitle={onboarding ? "Ask Local Agent: Add a Project" : "Add Project"}
+      navigationTitle={onboarding ? "Ask Pi: Add a Project" : "Add Project"}
       actions={
         <ActionPanel>
           <Action.SubmitForm

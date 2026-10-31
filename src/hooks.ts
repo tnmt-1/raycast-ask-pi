@@ -8,7 +8,7 @@ import { mergeProjects, parseProjectsFile } from "./services/projects";
 import { removeSession, upsertSession } from "./services/sessions";
 import type { Project, SessionRecord } from "./types";
 
-const DEFAULT_PROJECTS_FILE = "~/.config/raycast-local-agent/projects.json";
+const DEFAULT_PROJECTS_FILE = "~/.config/raycast-ask-pi/projects.json";
 
 export function projectsFilePath(): string {
   return expandHome(getPreferences().projectsFile?.trim() || DEFAULT_PROJECTS_FILE);

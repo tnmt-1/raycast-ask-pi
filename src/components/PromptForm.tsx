@@ -145,7 +145,7 @@ export function PromptForm() {
   return (
     <Form
       isLoading={projectsLoading || sessionsLoading || modelsLoading}
-      navigationTitle="Ask Local Agent"
+      navigationTitle="Ask Pi"
       actions={
         <ActionPanel>
           {project ? <Action.SubmitForm title="Run Agent" icon={Icon.Play} onSubmit={submit} /> : null}

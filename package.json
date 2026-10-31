@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "local-agent",
-  "title": "Local Coding Agent",
+  "name": "ask-pi",
+  "title": "Ask Pi",
   "description": "Chat with a local coding agent (Pi) from Raycast without opening a terminal.",
   "icon": "icon.png",
   "author": "tnmt",
@@ -15,7 +15,7 @@
   "commands": [
     {
       "name": "ask-agent",
-      "title": "Ask Local Agent",
+      "title": "Ask Pi",
       "description": "Send a prompt to a local coding agent in a registered project and read the answer.",
       "mode": "view"
     },
@@ -49,7 +49,7 @@
       "description": "JSON file listing projects. Projects added in Raycast are stored separately.",
       "type": "textfield",
       "required": false,
-      "default": "~/.config/raycast-local-agent/projects.json"
+      "default": "~/.config/raycast-ask-pi/projects.json"
     },
     {
       "name": "defaultModel",
