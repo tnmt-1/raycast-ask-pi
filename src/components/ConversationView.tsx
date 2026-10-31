@@ -14,6 +14,8 @@ interface Props {
   prompt?: string;
   /** Existing session to continue; a new one is created when omitted. */
   session?: SessionRecord;
+  /** Called with the session id each time a prompt is sent. */
+  onSessionUsed?: (id: string) => void;
 }
 
 const UPDATE_INTERVAL_MS = 150;
@@ -34,7 +36,7 @@ const PHASE_ICON: Record<Turn["phase"], Image.ImageLike> = {
   cancelled: { source: Icon.MinusCircle, tintColor: Color.SecondaryText },
 };
 
-export function ConversationView({ agentId, project, prompt, session }: Props) {
+export function ConversationView({ agentId, project, prompt, session, onSessionUsed }: Props) {
   const [sessionId, setSessionId] = useState(() => session?.id ?? randomUUID());
   const [continued, setContinued] = useState(session);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -74,6 +76,7 @@ export function ConversationView({ agentId, project, prompt, session }: Props) {
       createdAt: startedAt,
       updatedAt: startedAt,
     });
+    onSessionUsed?.(targetSession);
 
     const toast = await showToast({ style: Toast.Style.Animated, title: "Agent running", message: project.name });
     // Streaming emits an update per token; re-render at most every UPDATE_INTERVAL_MS.

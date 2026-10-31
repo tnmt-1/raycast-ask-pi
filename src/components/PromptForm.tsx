@@ -36,9 +36,15 @@ export function PromptForm() {
   const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState<string>();
   const promptRef = useRef<Form.TextArea>(null);
+  // Session last used in the conversation view, selected again when the user comes back.
+  const lastSessionRef = useRef<string>(undefined);
+  const onSessionUsed = (id: string) => {
+    lastSessionRef.current = id;
+  };
 
   const onConversationClosed = () => {
     reload();
+    if (lastSessionRef.current) setSessionChoice(lastSessionRef.current);
     promptRef.current?.focus();
   };
 
@@ -55,11 +61,10 @@ export function PromptForm() {
   const project = projects.find((p) => p.path === projectPath);
   const projectSessions = project ? sessionsForProject(sessions, project.path, agentId) : [];
 
-  // Default to continuing the latest session of the selected project.
+  // Start a new session whenever the project or agent changes.
   useEffect(() => {
-    if (sessionsLoading) return;
-    setSessionChoice(projectSessions[0]?.id ?? NEW_SESSION);
-  }, [projectPath, agentId, sessionsLoading]);
+    setSessionChoice(NEW_SESSION);
+  }, [projectPath, agentId]);
 
   const submit = async () => {
     if (!project) return;
@@ -71,7 +76,13 @@ export function PromptForm() {
     const session = projectSessions.find((s) => s.id === sessionChoice);
     setPrompt("");
     push(
-      <ConversationView agentId={agentId} project={project} prompt={prompt} session={session} />,
+      <ConversationView
+        agentId={agentId}
+        project={project}
+        prompt={prompt}
+        session={session}
+        onSessionUsed={onSessionUsed}
+      />,
       onConversationClosed,
     );
   };
@@ -80,7 +91,11 @@ export function PromptForm() {
     const session = projectSessions.find((s) => s.id === sessionChoice);
     if (!project || !session) return;
     await LocalStorage.setItem(LAST_PROJECT_KEY, project.path);
-    push(<ConversationView agentId={agentId} project={project} session={session} />, onConversationClosed);
+    onSessionUsed(session.id);
+    push(
+      <ConversationView agentId={agentId} project={project} session={session} onSessionUsed={onSessionUsed} />,
+      onConversationClosed,
+    );
   };
 
   const deleteSelectedSession = async () => {
