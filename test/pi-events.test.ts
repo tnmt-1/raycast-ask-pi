@@ -14,7 +14,7 @@ describe("buildPiArgs", () => {
       "--session-id",
       "abc-123",
       "--tools",
-      "read,grep,find,ls",
+      "read,grep,find,ls,web_search,fetch_content",
       "--no-mcp",
     ]);
   });
@@ -23,8 +23,17 @@ describe("buildPiArgs", () => {
 describe("buildPiArgs read-only", () => {
   it("allows only read-only tools and disables MCP", () => {
     const args = buildPiArgs({ sessionId: "abc-123" });
-    expect(args.join(" ")).toContain("--tools read,grep,find,ls");
+    expect(args.join(" ")).toContain("--tools read,grep,find,ls,web_search,fetch_content");
     expect(args).toContain("--no-mcp");
+  });
+});
+
+describe("buildPiArgs web tools", () => {
+  it("allows web search and fetch but no tool that edits files or runs commands", () => {
+    const args = buildPiArgs({ sessionId: "abc-123" });
+    const tools = args[args.indexOf("--tools") + 1].split(",");
+    expect(tools).toEqual(expect.arrayContaining(["web_search", "fetch_content"]));
+    for (const t of ["edit", "write", "bash"]) expect(tools).not.toContain(t);
   });
 });
 

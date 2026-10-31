@@ -15,9 +15,10 @@ export function buildPiArgs(options: { sessionId: string; model?: string; thinki
     options.sessionId,
     ...(model ? ["--model", model] : []),
     ...(thinking ? ["--thinking", thinking] : []),
-    // Read-only: no edit, write or bash, and no extension or MCP tools that could change files.
+    // Read-only: no edit, write or bash, and no MCP tools that could change files.
+    // web_search and fetch_content only read the web; sessions that used them before keep working.
     "--tools",
-    "read,grep,find,ls",
+    "read,grep,find,ls,web_search,fetch_content",
     "--no-mcp",
   ];
 }
