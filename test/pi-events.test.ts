@@ -62,7 +62,7 @@ describe("PiEventParser", () => {
     p.handle({ type: "tool_execution_start", toolCallId: "c1", toolName: "bash", args: { command: "ls" } });
     expect(p.status).toBe("Running bash…");
     p.handle(assistantEnd("Done."));
-    expect(p.text).toBe("Let me look.\n\n> 🔧 `bash` ls\n\nDone.");
+    expect(p.text).toBe("Let me look.\n\nDone.");
   });
 
   it("ignores thinking in both the status and the text", () => {
@@ -136,7 +136,7 @@ describe("historyTurns", () => {
       { role: "assistant", content: [{ type: "text", text: "You're welcome." }], stopReason: "stop" },
     ]);
     expect(turns).toEqual([
-      { prompt: "list files", text: "Let me look.\n\n> 🔧 `bash` ls\n\nFound a.ts." },
+      { prompt: "list files", text: "Let me look.\n\nFound a.ts." },
       { prompt: "thanks", text: "You're welcome." },
     ]);
   });

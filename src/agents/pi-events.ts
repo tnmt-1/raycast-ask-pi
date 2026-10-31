@@ -77,13 +77,9 @@ export class PiEventParser {
       case "message_end":
         this.onMessageEnd(event.message);
         break;
-      case "tool_execution_start": {
-        const name = typeof event.toolName === "string" ? event.toolName : "tool";
-        const summary = summarizeToolArgs(event.args);
-        this.blocks.push(`> 🔧 \`${name}\`${summary ? ` ${summary}` : ""}`);
-        this.status = `Running ${name}…`;
+      case "tool_execution_start":
+        this.status = `Running ${typeof event.toolName === "string" ? event.toolName : "tool"}…`;
         break;
-      }
       case "tool_execution_end":
         this.status = "Waiting for the model…";
         break;
@@ -140,12 +136,6 @@ export class PiEventParser {
   }
 }
 
-function toolLine(call: Json): string {
-  const name = typeof call.name === "string" ? call.name : "tool";
-  const summary = summarizeToolArgs(call.arguments);
-  return `> 🔧 \`${name}\`${summary ? ` ${summary}` : ""}`;
-}
-
 /** Turns Pi's `get_messages` result into prompt/answer pairs, in the same shape the live view renders. */
 export function historyTurns(messages: unknown[]): { prompt: string; text: string }[] {
   const turns: { prompt: string; blocks: string[] }[] = [];
@@ -158,7 +148,6 @@ export function historyTurns(messages: unknown[]): { prompt: string; text: strin
       for (const c of m.content) {
         if (!isObject(c)) continue;
         if (c.type === "text" && typeof c.text === "string" && c.text.trim() !== "") blocks.push(c.text);
-        if (c.type === "toolCall") blocks.push(toolLine(c));
       }
     }
   }
