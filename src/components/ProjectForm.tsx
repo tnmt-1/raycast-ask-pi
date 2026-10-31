@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { Project } from "../types";
 
 const ABOUT_PROJECT =
-  "A project is the directory the agent works in. It reads and edits files there, like running the agent CLI in that directory from a terminal. Choose the repository you want to ask about.";
+  "A project is the directory the agent works in. It reads and edits files there, like running `pi` in that directory from a terminal. Choose the repository you want to ask about.";
 
 interface Props {
   onSave: (project: Omit<Project, "source">) => Promise<void> | void;

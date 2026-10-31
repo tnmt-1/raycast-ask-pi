@@ -103,7 +103,7 @@ export function PromptForm() {
     if (!session) return;
     const ok = await confirmAlert({
       title: "Remove session from list?",
-      message: `“${session.title}” is only removed from this extension. The agent's session file is kept.`,
+      message: `“${session.title}” is only removed from this extension. The Pi session file is kept.`,
       primaryAction: { title: "Remove", style: Alert.ActionStyle.Destructive },
     });
     if (ok) await remove(session.id);

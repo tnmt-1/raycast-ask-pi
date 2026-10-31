@@ -3,9 +3,6 @@ import type { AgentId } from "./types";
 
 export interface Preferences {
   piPath?: string;
-  claudePath?: string;
-  codexPath?: string;
-  cursorPath?: string;
   extraPath?: string;
   projectsFile?: string;
   defaultAgent?: AgentId;

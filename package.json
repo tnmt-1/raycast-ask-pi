@@ -2,7 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "local-agent",
   "title": "Local Coding Agent",
-  "description": "Chat with a local coding agent (Pi, Claude Code, Codex, Cursor) from Raycast without opening a terminal.",
+  "description": "Chat with a local coding agent (Pi) from Raycast without opening a terminal.",
   "icon": "icon.png",
   "author": "tnmt",
   "platforms": [
@@ -36,36 +36,12 @@
       "default": "pi"
     },
     {
-      "name": "claudePath",
-      "title": "Claude CLI Path",
-      "description": "Path or command name of the Claude Code CLI. Leave as \"claude\" to search PATH.",
-      "type": "textfield",
-      "required": false,
-      "default": "claude"
-    },
-    {
-      "name": "codexPath",
-      "title": "Codex CLI Path",
-      "description": "Path or command name of the Codex CLI. Leave as \"codex\" to search PATH.",
-      "type": "textfield",
-      "required": false,
-      "default": "codex"
-    },
-    {
-      "name": "cursorPath",
-      "title": "Cursor CLI Path",
-      "description": "Path or command name of the Cursor Agent CLI. Leave as \"cursor-agent\" to search PATH.",
-      "type": "textfield",
-      "required": false,
-      "default": "cursor-agent"
-    },
-    {
       "name": "extraPath",
       "title": "Additional PATH",
       "description": "Colon-separated directories prepended to PATH when running the agent (e.g. where node lives).",
       "type": "textfield",
       "required": false,
-      "default": "~/.local/share/mise/shims:~/.local/bin:/opt/homebrew/bin:/usr/local/bin"
+      "default": "~/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin"
     },
     {
       "name": "projectsFile",
@@ -86,18 +62,6 @@
         {
           "title": "Pi",
           "value": "pi"
-        },
-        {
-          "title": "Claude Code",
-          "value": "claude"
-        },
-        {
-          "title": "Codex",
-          "value": "codex"
-        },
-        {
-          "title": "Cursor",
-          "value": "cursor"
         }
       ]
     },
