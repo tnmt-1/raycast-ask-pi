@@ -17,7 +17,18 @@ describe("buildPiArgs", () => {
       "claude-code/claude-haiku-5-5",
       "--thinking",
       "low",
+      "--tools",
+      "read,grep,find,ls",
+      "--no-mcp",
     ]);
+  });
+});
+
+describe("buildPiArgs read-only", () => {
+  it("allows only read-only tools and disables MCP", () => {
+    const args = buildPiArgs({ sessionId: "abc-123" });
+    expect(args.join(" ")).toContain("--tools read,grep,find,ls");
+    expect(args).toContain("--no-mcp");
   });
 });
 

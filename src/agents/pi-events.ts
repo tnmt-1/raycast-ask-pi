@@ -14,6 +14,10 @@ export function buildPiArgs(options: { sessionId: string }): string[] {
     "claude-code/claude-haiku-5-5",
     "--thinking",
     "low",
+    // Read-only: no edit, write or bash, and no extension or MCP tools that could change files.
+    "--tools",
+    "read,grep,find,ls",
+    "--no-mcp",
   ];
 }
 
