@@ -39,6 +39,8 @@ const PHASE_ICON: Record<Turn["phase"], Image.ImageLike> = {
 export function ConversationView({ agentId, project, prompt, session, onSessionUsed }: Props) {
   const [sessionId, setSessionId] = useState(() => session?.id ?? randomUUID());
   const [continued, setContinued] = useState(session);
+  // Whether the agent already has a conversation under `sessionId`, so the next prompt resumes it.
+  const [known, setKnown] = useState(Boolean(session));
   const [turns, setTurns] = useState<Turn[]>([]);
   // Prompts and answers from before this view was opened, oldest first.
   const [history, setHistory] = useState<Turn[]>([]);
@@ -60,34 +62,44 @@ export function ConversationView({ agentId, project, prompt, session, onSessionU
     if (controller.current) return;
     const abort = new AbortController();
     controller.current = abort;
-    const targetSession = sessionId;
+    const agent = createAgent(agentId);
+    const resume = known;
+    // Agents that assign their own id report it while running; until then there is nothing to save.
+    let targetSession: string | undefined = resume || agent.presetSessionId ? sessionId : undefined;
+    // Set once the agent reports a session id, meaning it has created the conversation.
+    let reported = false;
     const updateLast = (patch: Partial<Turn>) =>
       setTurns((prev) => prev.map((t, i) => (i === prev.length - 1 ? { ...t, ...patch } : t)));
     setPinnedId(undefined);
     setTurns((prev) => [...prev, { prompt: text, text: "", phase: "starting", status: "Starting…" }]);
     const title = continued?.title ?? sessionTitle(turns[0]?.prompt ?? text);
     // Saved before running too, so the session is listed as soon as the user navigates back.
-    const startedAt = Date.now();
-    await saveSession({
-      id: targetSession,
-      agentId,
-      projectPath: project.path,
-      title,
-      createdAt: startedAt,
-      updatedAt: startedAt,
-    });
-    onSessionUsed?.(targetSession);
+    const save = (id: string) => {
+      const now = Date.now();
+      return saveSession({ id, agentId, projectPath: project.path, title, createdAt: now, updatedAt: now });
+    };
+    if (targetSession) {
+      await save(targetSession);
+      onSessionUsed?.(targetSession);
+    }
 
     const toast = await showToast({ style: Toast.Style.Animated, title: "Agent running", message: project.name });
     // Streaming emits an update per token; re-render at most every UPDATE_INTERVAL_MS.
     let pending: Partial<Turn> | undefined;
     let timer: NodeJS.Timeout | undefined;
-    const result = await createAgent(agentId).run({
+    const result = await agent.run({
       cwd: project.path,
       prompt: text,
-      sessionId: targetSession,
+      sessionId,
+      resume,
       signal: abort.signal,
       onUpdate: (u) => {
+        if (u.sessionId) reported = true;
+        if (u.sessionId && !targetSession) {
+          targetSession = u.sessionId;
+          save(targetSession);
+          onSessionUsed?.(targetSession);
+        }
         pending = { phase: u.phase, text: u.text, status: u.status };
         timer ??= setTimeout(() => {
           timer = undefined;
@@ -99,17 +111,13 @@ export function ConversationView({ agentId, project, prompt, session, onSessionU
     const superseded = controller.current !== abort;
     if (!superseded) controller.current = null;
 
-    // Keep the session even when the view was closed: Pi has already persisted the conversation.
-    const now = Date.now();
-    await saveSession({
-      id: result.sessionId,
-      agentId,
-      projectPath: project.path,
-      title,
-      createdAt: now,
-      updatedAt: now,
-    });
+    // Keep the session even when the view was closed: the agent has already persisted the conversation.
+    if (result.sessionId) await save(result.sessionId);
     if (superseded) return;
+    if (result.sessionId && (resume || reported)) {
+      setSessionId(result.sessionId);
+      setKnown(true);
+    }
     if (!mounted.current) {
       await toast.hide();
       return;
@@ -134,7 +142,7 @@ export function ConversationView({ agentId, project, prompt, session, onSessionU
     mounted.current = true;
     // Deferred so React's development double-mount (mount, unmount, mount) starts the first run only once.
     const start = setTimeout(async () => {
-      // Load earlier turns before sending, so Pi does not append to the session while it is being read.
+      // Load earlier turns before sending, so the agent does not append to the session while it is being read.
       if (session) await loadHistory(session.id);
       if (mounted.current && prompt) send(prompt);
     });
@@ -164,6 +172,7 @@ export function ConversationView({ agentId, project, prompt, session, onSessionU
   const startNewSession = () => {
     setSessionId(randomUUID());
     setContinued(undefined);
+    setKnown(false);
     setTurns([]);
     setHistory([]);
     setPinnedId(undefined);

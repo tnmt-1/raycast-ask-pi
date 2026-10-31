@@ -19,6 +19,7 @@ export function createPiAgent(options: PiAgentOptions): Agent {
   return {
     id: "pi",
     title: "Pi",
+    presetSessionId: true,
     async history({ cwd, sessionId, signal }): Promise<HistoryTurn[]> {
       // One RPC command, then stdin closes, which asks Pi to shut down after answering.
       const timeout = AbortSignal.timeout(HISTORY_TIMEOUT_MS);
@@ -53,7 +54,7 @@ export function createPiAgent(options: PiAgentOptions): Agent {
     async run(request: RunRequest): Promise<RunResult> {
       const parser = new PiEventParser();
       const emit = (phase: "starting" | "running") =>
-        request.onUpdate({ phase, text: parser.text, status: parser.status });
+        request.onUpdate({ phase, text: parser.text, status: parser.status, sessionId: parser.sessionId });
 
       emit("starting");
       const fail = (error: string): RunResult => ({
