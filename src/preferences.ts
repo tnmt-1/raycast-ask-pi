@@ -1,11 +1,11 @@
 import { getPreferenceValues } from "@raycast/api";
-import type { AgentId } from "./types";
 
 export interface Preferences {
   piPath?: string;
   extraPath?: string;
   projectsFile?: string;
-  defaultAgent?: AgentId;
+  defaultModel?: string;
+  defaultThinking?: string;
   defaultProject?: string;
 }
 

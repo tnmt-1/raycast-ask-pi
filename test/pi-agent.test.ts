@@ -131,3 +131,23 @@ describe("PiAgent", () => {
     ).rejects.toThrow("boom");
   });
 });
+
+describe("PiAgent model selection", () => {
+  it("passes the requested model and thinking level to the CLI", async () => {
+    const body = `
+      emit({ type: "session", id: sid });
+      emit({ type: "message_end", message: { role: "assistant", content: [{ type: "text", text: args.join(" ") }], stopReason: "stop" } });
+      emit({ type: "agent_settled", aborted: false });
+    `;
+    const result = await createPiAgent({ command: fakePi(body), env: {} }).run({
+      cwd: tmpdir(),
+      prompt: "x",
+      sessionId: "s-8",
+      model: "p/m",
+      thinking: "max",
+      onUpdate: () => {},
+    });
+    expect(result.text).toContain("--model p/m");
+    expect(result.text).toContain("--thinking max");
+  });
+});

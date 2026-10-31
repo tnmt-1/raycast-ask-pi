@@ -4,16 +4,17 @@ type Json = Record<string, unknown>;
 
 const isObject = (v: unknown): v is Json => typeof v === "object" && v !== null && !Array.isArray(v);
 
-export function buildPiArgs(options: { sessionId: string }): string[] {
+/** `model` and `thinking` are passed only when non-empty; otherwise Pi uses its own defaults. */
+export function buildPiArgs(options: { sessionId: string; model?: string; thinking?: string }): string[] {
+  const model = options.model?.trim();
+  const thinking = options.thinking?.trim();
   return [
     "--mode",
     "json",
     "--session-id",
     options.sessionId,
-    "--model",
-    "claude-code/claude-haiku-5-5",
-    "--thinking",
-    "low",
+    ...(model ? ["--model", model] : []),
+    ...(thinking ? ["--thinking", thinking] : []),
     // Read-only: no edit, write or bash, and no extension or MCP tools that could change files.
     "--tools",
     "read,grep,find,ls",

@@ -66,7 +66,7 @@ export function createPiAgent(options: PiAgentOptions): Agent {
       try {
         const result = await runProcess({
           command: options.command,
-          args: buildPiArgs({ sessionId: request.sessionId }),
+          args: buildPiArgs({ sessionId: request.sessionId, model: request.model, thinking: request.thinking }),
           cwd: request.cwd,
           env: options.env,
           // The prompt goes through stdin so it is never parsed as a CLI option or @file reference.

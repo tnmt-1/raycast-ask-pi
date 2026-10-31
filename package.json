@@ -52,16 +52,51 @@
       "default": "~/.config/raycast-local-agent/projects.json"
     },
     {
-      "name": "defaultAgent",
-      "title": "Default Agent",
-      "description": "Agent selected when the form opens.",
+      "name": "defaultModel",
+      "title": "Default Model",
+      "description": "Model selected when the form opens, e.g. \"anthropic/claude-opus-4-8\". Leave empty to use Pi's default.",
+      "type": "textfield",
+      "required": false
+    },
+    {
+      "name": "defaultThinking",
+      "title": "Default Thinking Level",
+      "description": "Thinking level selected when the form opens.",
       "type": "dropdown",
       "required": false,
-      "default": "pi",
+      "default": "",
       "data": [
         {
-          "title": "Pi",
-          "value": "pi"
+          "title": "Pi default",
+          "value": ""
+        },
+        {
+          "title": "off",
+          "value": "off"
+        },
+        {
+          "title": "minimal",
+          "value": "minimal"
+        },
+        {
+          "title": "low",
+          "value": "low"
+        },
+        {
+          "title": "medium",
+          "value": "medium"
+        },
+        {
+          "title": "high",
+          "value": "high"
+        },
+        {
+          "title": "xhigh",
+          "value": "xhigh"
+        },
+        {
+          "title": "max",
+          "value": "max"
         }
       ]
     },

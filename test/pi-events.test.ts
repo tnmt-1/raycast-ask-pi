@@ -13,10 +13,6 @@ describe("buildPiArgs", () => {
       "json",
       "--session-id",
       "abc-123",
-      "--model",
-      "claude-code/claude-haiku-5-5",
-      "--thinking",
-      "low",
       "--tools",
       "read,grep,find,ls",
       "--no-mcp",
@@ -29,6 +25,20 @@ describe("buildPiArgs read-only", () => {
     const args = buildPiArgs({ sessionId: "abc-123" });
     expect(args.join(" ")).toContain("--tools read,grep,find,ls");
     expect(args).toContain("--no-mcp");
+  });
+});
+
+describe("buildPiArgs model and thinking", () => {
+  it("passes the model and thinking level when given", () => {
+    const args = buildPiArgs({ sessionId: "s", model: "anthropic/claude-opus-4-8", thinking: "high" }).join(" ");
+    expect(args).toContain("--model anthropic/claude-opus-4-8");
+    expect(args).toContain("--thinking high");
+  });
+
+  it("leaves them to Pi when empty", () => {
+    const args = buildPiArgs({ sessionId: "s", model: "", thinking: "" });
+    expect(args).not.toContain("--model");
+    expect(args).not.toContain("--thinking");
   });
 });
 

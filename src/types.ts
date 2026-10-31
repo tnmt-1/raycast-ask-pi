@@ -27,6 +27,10 @@ export interface RunRequest {
   cwd: string;
   prompt: string;
   sessionId: string;
+  /** Model pattern such as "provider/id"; empty or omitted uses the agent's default. */
+  model?: string;
+  /** Thinking level; empty or omitted uses the agent's default. */
+  thinking?: string;
   signal?: AbortSignal;
   onUpdate: (update: RunUpdate) => void;
 }

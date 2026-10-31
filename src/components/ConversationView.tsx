@@ -9,6 +9,9 @@ import type { AgentId, Project, SessionRecord } from "../types";
 
 interface Props {
   agentId: AgentId;
+  /** Model and thinking level for every prompt in this view; omitted values use Pi's defaults. */
+  model?: string;
+  thinking?: string;
   project: Project;
   /** First prompt to send; when omitted, the view only shows the session. */
   prompt?: string;
@@ -36,7 +39,7 @@ const PHASE_ICON: Record<Turn["phase"], Image.ImageLike> = {
   cancelled: { source: Icon.MinusCircle, tintColor: Color.SecondaryText },
 };
 
-export function ConversationView({ agentId, project, prompt, session, onSessionUsed }: Props) {
+export function ConversationView({ agentId, model, thinking, project, prompt, session, onSessionUsed }: Props) {
   const [sessionId, setSessionId] = useState(() => session?.id ?? randomUUID());
   const [continued, setContinued] = useState(session);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -86,6 +89,8 @@ export function ConversationView({ agentId, project, prompt, session, onSessionU
       cwd: project.path,
       prompt: text,
       sessionId: targetSession,
+      model,
+      thinking,
       signal: abort.signal,
       onUpdate: (u) => {
         pending = { phase: u.phase, text: u.text, status: u.status };

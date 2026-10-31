@@ -10,11 +10,12 @@ import {
   openExtensionPreferences,
   useNavigation,
 } from "@raycast/api";
+import { usePromise } from "@raycast/utils";
 import { useEffect, useRef, useState } from "react";
-import { AGENT_CHOICES } from "../agents";
 import { useProjects, useSessions } from "../hooks";
 import { getPreferences } from "../preferences";
 import { expandHome } from "../services/env";
+import { modelChoices, readEnabledModels, THINKING_LEVELS } from "../services/pi-settings";
 import { sessionsForProject } from "../services/sessions";
 import type { AgentId } from "../types";
 import { ConversationView } from "./ConversationView";
@@ -23,6 +24,9 @@ import { ProjectSelector } from "./ProjectSelector";
 
 const NEW_SESSION = "__new__";
 const LAST_PROJECT_KEY = "lastProject";
+/** Dropdown value meaning "do not pass this option; let Pi decide". */
+const PI_DEFAULT = "__pi_default__";
+const AGENT_ID: AgentId = "pi";
 
 export function PromptForm() {
   const { push } = useNavigation();
@@ -30,7 +34,15 @@ export function PromptForm() {
   const { projects, isLoading: projectsLoading, fileError, filePath, addLocal } = useProjects();
   const { sessions, isLoading: sessionsLoading, remove, reload } = useSessions();
 
-  const [agentId, setAgentId] = useState<AgentId>(prefs.defaultAgent ?? "pi");
+  const defaultModel = prefs.defaultModel?.trim() ?? "";
+  const defaultThinking = prefs.defaultThinking?.trim() ?? "";
+  const { data: enabledModels, isLoading: modelsLoading } = usePromise(readEnabledModels);
+  const [model, setModel] = useState(defaultModel || PI_DEFAULT);
+  const [thinking, setThinking] = useState(defaultThinking || PI_DEFAULT);
+  const runOptions = {
+    model: model === PI_DEFAULT ? undefined : model,
+    thinking: thinking === PI_DEFAULT ? undefined : thinking,
+  };
   const [projectPath, setProjectPath] = useState<string>();
   const [sessionChoice, setSessionChoice] = useState(NEW_SESSION);
   const [prompt, setPrompt] = useState("");
@@ -59,12 +71,12 @@ export function PromptForm() {
   }, [projectsLoading, projects]);
 
   const project = projects.find((p) => p.path === projectPath);
-  const projectSessions = project ? sessionsForProject(sessions, project.path, agentId) : [];
+  const projectSessions = project ? sessionsForProject(sessions, project.path, AGENT_ID) : [];
 
-  // Start a new session whenever the project or agent changes.
+  // Start a new session whenever the project changes.
   useEffect(() => {
     setSessionChoice(NEW_SESSION);
-  }, [projectPath, agentId]);
+  }, [projectPath]);
 
   const submit = async () => {
     if (!project) return;
@@ -77,7 +89,8 @@ export function PromptForm() {
     setPrompt("");
     push(
       <ConversationView
-        agentId={agentId}
+        agentId={AGENT_ID}
+        {...runOptions}
         project={project}
         prompt={prompt}
         session={session}
@@ -93,7 +106,13 @@ export function PromptForm() {
     await LocalStorage.setItem(LAST_PROJECT_KEY, project.path);
     onSessionUsed(session.id);
     push(
-      <ConversationView agentId={agentId} project={project} session={session} onSessionUsed={onSessionUsed} />,
+      <ConversationView
+        agentId={AGENT_ID}
+        {...runOptions}
+        project={project}
+        session={session}
+        onSessionUsed={onSessionUsed}
+      />,
       onConversationClosed,
     );
   };
@@ -125,7 +144,7 @@ export function PromptForm() {
 
   return (
     <Form
-      isLoading={projectsLoading || sessionsLoading}
+      isLoading={projectsLoading || sessionsLoading || modelsLoading}
       navigationTitle="Ask Local Agent"
       actions={
         <ActionPanel>
@@ -173,17 +192,6 @@ export function PromptForm() {
       }
     >
       {fileError ? <Form.Description title="Projects file error" text={fileError.message} /> : null}
-      <Form.Dropdown
-        id="agent"
-        title="Agent"
-        value={agentId}
-        onChange={(v) => setAgentId(v as AgentId)}
-        storeValue={false}
-      >
-        {AGENT_CHOICES.map((a) => (
-          <Form.Dropdown.Item key={a.id} value={a.id} title={a.title} />
-        ))}
-      </Form.Dropdown>
       {projects.length > 0 ? (
         <ProjectSelector projects={projects} value={projectPath} onChange={setProjectPath} />
       ) : null}
@@ -201,6 +209,25 @@ export function PromptForm() {
           ))}
         </Form.Dropdown>
       ) : null}
+      <Form.Dropdown
+        id="model"
+        title="Model"
+        info="Models listed in enabledModels of Pi's settings.json."
+        value={model}
+        onChange={setModel}
+        storeValue={false}
+      >
+        <Form.Dropdown.Item value={PI_DEFAULT} title="Pi default" icon={Icon.Gear} />
+        {modelChoices(enabledModels ?? [], defaultModel).map((m) => (
+          <Form.Dropdown.Item key={m} value={m} title={m} />
+        ))}
+      </Form.Dropdown>
+      <Form.Dropdown id="thinking" title="Thinking" value={thinking} onChange={setThinking} storeValue={false}>
+        <Form.Dropdown.Item value={PI_DEFAULT} title="Pi default" icon={Icon.Gear} />
+        {THINKING_LEVELS.map((t) => (
+          <Form.Dropdown.Item key={t} value={t} title={t} />
+        ))}
+      </Form.Dropdown>
       <Form.TextArea
         id="prompt"
         ref={promptRef}
