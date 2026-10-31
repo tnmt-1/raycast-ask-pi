@@ -5,7 +5,16 @@ type Json = Record<string, unknown>;
 const isObject = (v: unknown): v is Json => typeof v === "object" && v !== null && !Array.isArray(v);
 
 export function buildPiArgs(options: { sessionId: string }): string[] {
-  return ["--mode", "json", "--session-id", options.sessionId];
+  return [
+    "--mode",
+    "json",
+    "--session-id",
+    options.sessionId,
+    "--model",
+    "claude-code/claude-haiku-5-5",
+    "--thinking",
+    "low",
+  ];
 }
 
 export function buildPiRpcArgs(options: { sessionId: string }): string[] {

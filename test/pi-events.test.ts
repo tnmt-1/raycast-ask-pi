@@ -8,7 +8,16 @@ const assistantEnd = (text: string, stopReason = "stop", errorMessage?: string) 
 
 describe("buildPiArgs", () => {
   it("uses JSON mode and the given session id without putting the prompt in argv", () => {
-    expect(buildPiArgs({ sessionId: "abc-123" })).toEqual(["--mode", "json", "--session-id", "abc-123"]);
+    expect(buildPiArgs({ sessionId: "abc-123" })).toEqual([
+      "--mode",
+      "json",
+      "--session-id",
+      "abc-123",
+      "--model",
+      "claude-code/claude-haiku-5-5",
+      "--thinking",
+      "low",
+    ]);
   });
 });
 
