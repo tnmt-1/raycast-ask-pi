@@ -10,7 +10,7 @@ import {
   openExtensionPreferences,
   useNavigation,
 } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AGENT_CHOICES } from "../agents";
 import { useProjects, useSessions } from "../hooks";
 import { getPreferences } from "../preferences";
@@ -35,6 +35,12 @@ export function PromptForm() {
   const [sessionChoice, setSessionChoice] = useState(NEW_SESSION);
   const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState<string>();
+  const promptRef = useRef<Form.TextArea>(null);
+
+  const onConversationClosed = () => {
+    reload();
+    promptRef.current?.focus();
+  };
 
   // Pick the initial project once the list is loaded: last used, then the preference, then the first one.
   useEffect(() => {
@@ -64,14 +70,17 @@ export function PromptForm() {
     await LocalStorage.setItem(LAST_PROJECT_KEY, project.path);
     const session = projectSessions.find((s) => s.id === sessionChoice);
     setPrompt("");
-    push(<ConversationView agentId={agentId} project={project} prompt={prompt} session={session} />, () => reload());
+    push(
+      <ConversationView agentId={agentId} project={project} prompt={prompt} session={session} />,
+      onConversationClosed,
+    );
   };
 
   const openSelectedSession = async () => {
     const session = projectSessions.find((s) => s.id === sessionChoice);
     if (!project || !session) return;
     await LocalStorage.setItem(LAST_PROJECT_KEY, project.path);
-    push(<ConversationView agentId={agentId} project={project} session={session} />, () => reload());
+    push(<ConversationView agentId={agentId} project={project} session={session} />, onConversationClosed);
   };
 
   const deleteSelectedSession = async () => {
@@ -179,6 +188,7 @@ export function PromptForm() {
       ) : null}
       <Form.TextArea
         id="prompt"
+        ref={promptRef}
         title="Prompt"
         placeholder="What should the agent do?"
         value={prompt}
