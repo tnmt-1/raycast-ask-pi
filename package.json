@@ -1,0 +1,98 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "local-agent",
+  "title": "Local Coding Agent",
+  "description": "Chat with a local coding agent (Pi) from Raycast without opening a terminal.",
+  "icon": "icon.png",
+  "author": "tnmt",
+  "platforms": [
+    "macOS"
+  ],
+  "categories": [
+    "Developer Tools"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "ask-agent",
+      "title": "Ask Local Agent",
+      "description": "Send a prompt to a local coding agent in a registered project and read the answer.",
+      "mode": "view"
+    },
+    {
+      "name": "manage-projects",
+      "title": "Manage Agent Projects",
+      "description": "Add or remove projects used as working directories for the local agent.",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "piPath",
+      "title": "Pi CLI Path",
+      "description": "Path or command name of the Pi CLI. Leave as \"pi\" to search PATH.",
+      "type": "textfield",
+      "required": false,
+      "default": "pi"
+    },
+    {
+      "name": "extraPath",
+      "title": "Additional PATH",
+      "description": "Colon-separated directories prepended to PATH when running the agent (e.g. where node lives).",
+      "type": "textfield",
+      "required": false,
+      "default": "~/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin"
+    },
+    {
+      "name": "projectsFile",
+      "title": "Projects File",
+      "description": "JSON file listing projects. Projects added in Raycast are stored separately.",
+      "type": "textfield",
+      "required": false,
+      "default": "~/.config/raycast-local-agent/projects.json"
+    },
+    {
+      "name": "defaultAgent",
+      "title": "Default Agent",
+      "description": "Agent selected when the form opens.",
+      "type": "dropdown",
+      "required": false,
+      "default": "pi",
+      "data": [
+        {
+          "title": "Pi",
+          "value": "pi"
+        }
+      ]
+    },
+    {
+      "name": "defaultProject",
+      "title": "Default Working Directory",
+      "description": "Path of the project selected when the form opens. Must match a registered project.",
+      "type": "textfield",
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^2.10.1",
+    "@raycast/utils": "^2.3.3"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.2.0",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "echo \"\\n\\nThis extension is not meant to be published to npm.\\n\\n\" && exit 1"
+  }
+}
