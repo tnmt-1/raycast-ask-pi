@@ -67,6 +67,13 @@ export function PromptForm() {
     push(<ConversationView agentId={agentId} project={project} prompt={prompt} session={session} />, () => reload());
   };
 
+  const openSelectedSession = async () => {
+    const session = projectSessions.find((s) => s.id === sessionChoice);
+    if (!project || !session) return;
+    await LocalStorage.setItem(LAST_PROJECT_KEY, project.path);
+    push(<ConversationView agentId={agentId} project={project} session={session} />, () => reload());
+  };
+
   const deleteSelectedSession = async () => {
     const session = projectSessions.find((s) => s.id === sessionChoice);
     if (!session) return;
@@ -118,6 +125,14 @@ export function PromptForm() {
               icon={Icon.PlusCircle}
               shortcut={Keyboard.Shortcut.Common.New}
               onAction={() => setSessionChoice(NEW_SESSION)}
+            />
+          ) : null}
+          {sessionChoice !== NEW_SESSION ? (
+            <Action
+              title="Open Session"
+              icon={Icon.Bubble}
+              shortcut={Keyboard.Shortcut.Common.Open}
+              onAction={openSelectedSession}
             />
           ) : null}
           {sessionChoice !== NEW_SESSION ? (

@@ -10,7 +10,8 @@ import type { AgentId, Project, SessionRecord } from "../types";
 interface Props {
   agentId: AgentId;
   project: Project;
-  prompt: string;
+  /** First prompt to send; when omitted, the view only shows the session. */
+  prompt?: string;
   /** Existing session to continue; a new one is created when omitted. */
   session?: SessionRecord;
 }
@@ -121,7 +122,7 @@ export function ConversationView({ agentId, project, prompt, session }: Props) {
     const start = setTimeout(async () => {
       // Load earlier turns before sending, so Pi does not append to the session while it is being read.
       if (session) await loadHistory(session.id);
-      if (mounted.current) send(prompt);
+      if (mounted.current && prompt) send(prompt);
     });
     return () => {
       clearTimeout(start);
