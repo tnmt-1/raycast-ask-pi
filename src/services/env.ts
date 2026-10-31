@@ -1,4 +1,4 @@
-import { homedir } from "node:os";
+import { homedir, userInfo } from "node:os";
 
 export function expandHome(path: string, home = homedir()): string {
   if (path === "~") return home;
@@ -9,9 +9,15 @@ export function expandHome(path: string, home = homedir()): string {
 /**
  * Raycast starts extensions with a minimal PATH, so the CLI (and `node`, which Pi's launcher calls)
  * may not be found. Prepend the user's configured directories; the rest of the environment is passed
- * through unchanged so Pi keeps using its existing provider credentials.
+ * through unchanged so Pi keeps using its existing provider credentials. USER is filled in when
+ * missing because Claude Code needs it to read its login.
  */
-export function buildEnv(base: NodeJS.ProcessEnv, extraPath: string, home = homedir()): NodeJS.ProcessEnv {
+export function buildEnv(
+  base: NodeJS.ProcessEnv,
+  extraPath: string,
+  home = homedir(),
+  user = userInfo().username,
+): NodeJS.ProcessEnv {
   const current = (base.PATH ?? "").split(":").filter(Boolean);
   const extra = extraPath
     .split(":")
@@ -19,5 +25,5 @@ export function buildEnv(base: NodeJS.ProcessEnv, extraPath: string, home = home
     .filter(Boolean)
     .map((p) => expandHome(p, home))
     .filter((p) => !current.includes(p));
-  return { ...base, PATH: [...new Set(extra), ...current].join(":") };
+  return { ...base, USER: base.USER || user, PATH: [...new Set(extra), ...current].join(":") };
 }

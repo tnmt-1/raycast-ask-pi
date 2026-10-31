@@ -23,6 +23,16 @@ describe("buildEnv", () => {
     const env = buildEnv({ PATH: "/opt/homebrew/bin:/usr/bin" }, "/opt/homebrew/bin", "/h");
     expect(env.PATH).toBe("/opt/homebrew/bin:/usr/bin");
   });
+
+  it("sets USER when it is missing, since Claude Code cannot read its login without it", () => {
+    const env = buildEnv({ PATH: "/usr/bin" }, "", "/h", "me");
+    expect(env.USER).toBe("me");
+  });
+
+  it("keeps an existing USER", () => {
+    const env = buildEnv({ PATH: "/usr/bin", USER: "other" }, "", "/h", "me");
+    expect(env.USER).toBe("other");
+  });
 });
 
 describe("parseProjectsFile", () => {
