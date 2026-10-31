@@ -2,7 +2,7 @@
 
 Raycast から、ローカルで動くコーディングエージェントにプロンプトを送り、回答を Raycast の中で読むための Extension です。ターミナルを開かずに、質問から回答の確認、追加の質問まで済ませられます。
 
-初期の対応エージェントは [Pi](https://pi.dev) です。
+対応しているエージェントは [Pi](https://pi.dev) です。
 
 ## 前提
 
@@ -58,10 +58,11 @@ Additional PATH の既定値には、mise の shims と Homebrew の標準のイ
 
 ### そのほかの設定
 
-| 設定                      | 内容                                                                                                 |
-| ------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Default Agent             | フォームを開いたときに選ばれているエージェント                                                       |
-| Default Working Directory | フォームを開いたときに選ばれているプロジェクトのパス。登録済みのプロジェクトと一致する必要があります |
+| 設定                      | 内容                                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Default Model             | フォームを開いたときに選ばれているモデル（例：`anthropic/claude-opus-4-8`）。空なら Pi の既定を使います |
+| Default Thinking Level    | フォームを開いたときに選ばれている thinking のレベル。「Pi default」なら Pi の既定を使います            |
+| Default Working Directory | フォームを開いたときに選ばれているプロジェクトのパス。登録済みのプロジェクトと一致する必要があります    |
 
 フォームでは前回使ったプロジェクトを Default Working Directory より優先して選びます。
 
@@ -70,11 +71,12 @@ Additional PATH の既定値には、mise の shims と Homebrew の標準のイ
 1. Raycast で「Ask Local Agent」を開きます。
 2. プロジェクトを選びます。
 3. セッションを選びます。既定では、そのプロジェクトで最後に使ったセッションを続けます。新しく始めるときは「New session」を選ぶか、`⌘ N` を押します。
-4. プロンプトを入力して `⌘ Enter` で実行します。
-5. 会話の画面に移ります。左に自分のプロンプトの一覧（新しいものが上）、右にエージェントの回答が Markdown で表示されます。回答は届いた順に伸び、実行中は回答の下に進捗（実行中のツールなど）が出ます。
-6. 追加で質問するときは、画面上部の検索バーにプロンプトを入力して Enter で送ります。検索バーは1行のみです。
+4. 必要ならモデルと thinking のレベルを選びます。モデルの一覧には、Pi の `settings.json` の `enabledModels` に書かれたモデルが出ます。「Pi default」を選ぶと、Pi の既定のモデルとレベルで動きます。
+5. プロンプトを入力して `⌘ Enter` で実行します。
+6. 会話の画面に移ります。左に自分のプロンプトの一覧（新しいものが上）、右にエージェントの回答が Markdown で表示されます。回答は届いた順に伸び、実行中は回答の下に進捗（実行中のツールなど）が出ます。
+7. 追加で質問するときは、画面上部の検索バーにプロンプトを入力して Enter で送ります。検索バーは1行のみです。
 
-左の一覧で前のプロンプトを選ぶと、そのときの回答を見られます。
+左の一覧で前のプロンプトを選ぶと、そのときの回答を見られます。会話の画面で追加した質問にも、フォームで選んだモデルと thinking のレベルを使います。
 
 既存のセッションを続けるときは、送る前にそのセッションの過去のプロンプトと回答を Pi から読み込み、一覧の下の「Earlier in …」に表示します。読み込みには数秒かかります。
 
@@ -106,11 +108,13 @@ Extension は自分で作ったセッションの ID、タイトル（最初の�
 選んだプロジェクトのディレクトリをカレントディレクトリにして、次のように Pi を起動します。
 
 ```sh
-pi --mode json --session-id <UUID>
+pi --mode json --session-id <UUID> [--model <モデル>] [--thinking <レベル>] --tools read,grep,find,ls,web_search,fetch_content --no-mcp
 ```
 
 - `--mode json` で、Pi は処理の途中経過を JSONL のイベントとして標準出力に書き、終わると終了します。Extension はこのイベントを読み、本文の差分、ツールの実行、リトライ、エラーを画面に反映します。
 - `--session-id` は、指定した ID のセッションを開き、なければ作ります。新しいセッションでは Extension が UUID を発行し、続けるときは同じ ID を渡します。
+- `--model` と `--thinking` は、フォームで選んだときだけ渡します。渡さなければ、Pi の設定の既定値を使います。
+- `--tools` と `--no-mcp` で、Pi が使えるツールを、ファイルを読むツールと Web を検索・取得するツールに限ります。ファイルの編集や書き込み、コマンドの実行、MCP のツールは使えません。
 - 過去のやり取りは、`pi --mode rpc --session-id <ID>` を起動して `get_messages` コマンドを1回だけ送り、その応答から取り出します。Pi のセッションファイルを Extension が直接読むことはありません。
 - プロンプトは標準入力から渡します。コマンドライン引数に入れないので、`-` で始まる文や `@` で始まる語、改行、引用符を含んでいても、オプションやファイル参照として解釈されません。
 - プロセスは `child_process.spawn` に引数の配列を渡し、`shell: false` で起動します。シェルを通さないので、プロンプトやパスがシェルに解釈されることはありません。
@@ -123,12 +127,12 @@ src/
   ask-agent.tsx            コマンド「Ask Local Agent」
   manage-projects.tsx      コマンド「Manage Agent Projects」
   components/
-    PromptForm.tsx         エージェント、プロジェクト、セッション、プロンプトの入力
+    PromptForm.tsx         プロジェクト、セッション、モデル、thinking、プロンプトの入力
     ProjectSelector.tsx    プロジェクトのドロップダウン
     ProjectForm.tsx        プロジェクトの追加
     ConversationView.tsx   会話の一覧、回答の表示、追加の質問
   agents/
-    index.ts               エージェントの一覧と生成
+    index.ts               エージェントの生成
     pi.ts                  Pi の実行
     pi-events.ts           Pi の JSON イベントの解釈
   services/
@@ -137,27 +141,20 @@ src/
     projects.ts            プロジェクトファイルの読み込みと統合
     transcript.ts          会話を Markdown にする
     env.ts                 PATH の補完と ~ の展開
+    pi-settings.ts         Pi の settings.json から enabledModels を読む
   hooks.ts                 LocalStorage と設定の読み書き
   types.ts                 Agent、Project、SessionRecord などの型
 ```
 
 UI は `Agent` インターフェース（`types.ts`）の `run()` だけを呼びます。エージェント固有の処理は `agents/` にまとめています。
 
-### エージェントを追加する
-
-Claude Code などを追加するときは、次の3か所を変えます。
-
-1. `agents/` に、`Agent` を返す関数（例：`createClaudeCodeAgent`）を作ります。`run()` では、`onUpdate` で途中経過を通知し、`RunResult` を返します。プロセスの起動には `services/process-runner.ts` の `runProcess` を使えます。
-2. `types.ts` の `AgentId` に ID を足し、`agents/index.ts` の `AGENT_CHOICES` と `createAgent` に登録します。
-3. `package.json` の `defaultAgent` の選択肢と、必要なら CLI のパスの設定を足します。
-
 ## 安全性
 
 - Extension は Pi を起動するだけで、プロンプトやソースコードをほかのサービスへ送る処理を持ちません。
 - 環境変数は Raycast のプロセスのものをそのまま Pi に渡し、`PATH` だけを補います。環境変数の値を画面やログに出したり、保存したりしません。
-- Extension が中身を読むファイルは、プロジェクトの JSON ファイルだけです。
+- Extension が中身を読むファイルは、プロジェクトの JSON ファイルと、Pi の `settings.json`（`enabledModels` だけを使います）です。`settings.json` は `PI_CODING_AGENT_DIR`、なければ `~/.pi/agent` の下から読みます。
 - Extension 自身はファイルを削除しません。プロジェクトやセッションを一覧から外す操作では、確認のダイアログを出します。
-- エージェントがプロジェクトの中でファイルを編集したり、コマンドを実行したりするかどうかは、Pi の設定と権限に従います。
+- Pi は読み取り専用で起動します。プロジェクトの中のファイルを編集したり、コマンドを実行したりはしません。Web の検索と取得はできます。
 
 ## 開発
 
